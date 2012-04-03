@@ -1014,6 +1014,33 @@ static int __devinit twlreg_probe(struct platform_device *pdev)
 	struct regulator_init_data	*initdata;
 	struct regulation_constraints	*c;
 	struct regulator_dev		*rdev;
+<<<<<<< HEAD
+=======
+	struct twl_regulator_driver_data	*drvdata;
+	const struct of_device_id	*match;
+	struct regulator_config		config = { };
+
+	match = of_match_device(twl_of_match, &pdev->dev);
+	if (match) {
+		info = match->data;
+		id = info->desc.id;
+		initdata = of_get_regulator_init_data(&pdev->dev,
+						      pdev->dev.of_node);
+		drvdata = NULL;
+	} else {
+		id = pdev->id;
+		initdata = pdev->dev.platform_data;
+		for (i = 0, info = NULL; i < ARRAY_SIZE(twl_of_match); i++) {
+			info = twl_of_match[i].data;
+			if (!info || info->desc.id != id)
+				continue;
+			break;
+		}
+		drvdata = initdata->driver_data;
+		if (!drvdata)
+			return -EINVAL;
+	}
+>>>>>>> c172708... regulator: core: Use a struct to pass in regulator runtime configuration
 
 	for (i = 0, info = NULL; i < ARRAY_SIZE(twl_regs); i++) {
 		if (twl_regs[i].desc.id != pdev->id)
@@ -1074,7 +1101,16 @@ static int __devinit twlreg_probe(struct platform_device *pdev)
 		break;
 	}
 
+<<<<<<< HEAD
 	rdev = regulator_register(&info->desc, &pdev->dev, initdata, info, NULL);
+=======
+	config.dev = &pdev->dev;
+	config.init_data = initdata;
+	config.driver_data = info;
+	config.of_node = pdev->dev.of_node;
+
+	rdev = regulator_register(&info->desc, &config);
+>>>>>>> c172708... regulator: core: Use a struct to pass in regulator runtime configuration
 	if (IS_ERR(rdev)) {
 		dev_err(&pdev->dev, "can't register %s, %ld\n",
 				info->desc.name, PTR_ERR(rdev));

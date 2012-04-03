@@ -310,7 +310,12 @@ static __devinit int wm831x_gp_ldo_probe(struct platform_device *pdev)
 {
 	struct wm831x *wm831x = dev_get_drvdata(pdev->dev.parent);
 	struct wm831x_pdata *pdata = wm831x->dev->platform_data;
+<<<<<<< HEAD
 	int id = pdev->id % ARRAY_SIZE(pdata->ldo);
+=======
+	struct regulator_config config = { };
+	int id;
+>>>>>>> c172708... regulator: core: Use a struct to pass in regulator runtime configuration
 	struct wm831x_ldo *ldo;
 	struct resource *res;
 	int ret, irq;
@@ -344,8 +349,11 @@ static __devinit int wm831x_gp_ldo_probe(struct platform_device *pdev)
 	ldo->desc.ops = &wm831x_gp_ldo_ops;
 	ldo->desc.owner = THIS_MODULE;
 
-	ldo->regulator = regulator_register(&ldo->desc, &pdev->dev,
-					     pdata->ldo[id], ldo, NULL);
+	config.dev = pdev->dev.parent;
+	config.init_data = pdata->ldo[id];
+	config.driver_data = ldo;
+
+	ldo->regulator = regulator_register(&ldo->desc, &config);
 	if (IS_ERR(ldo->regulator)) {
 		ret = PTR_ERR(ldo->regulator);
 		dev_err(wm831x->dev, "Failed to register LDO%d: %d\n",
@@ -574,7 +582,12 @@ static __devinit int wm831x_aldo_probe(struct platform_device *pdev)
 {
 	struct wm831x *wm831x = dev_get_drvdata(pdev->dev.parent);
 	struct wm831x_pdata *pdata = wm831x->dev->platform_data;
+<<<<<<< HEAD
 	int id = pdev->id % ARRAY_SIZE(pdata->ldo);
+=======
+	struct regulator_config config = { };
+	int id;
+>>>>>>> c172708... regulator: core: Use a struct to pass in regulator runtime configuration
 	struct wm831x_ldo *ldo;
 	struct resource *res;
 	int ret, irq;
@@ -608,8 +621,11 @@ static __devinit int wm831x_aldo_probe(struct platform_device *pdev)
 	ldo->desc.ops = &wm831x_aldo_ops;
 	ldo->desc.owner = THIS_MODULE;
 
-	ldo->regulator = regulator_register(&ldo->desc, &pdev->dev,
-					     pdata->ldo[id], ldo, NULL);
+	config.dev = pdev->dev.parent;
+	config.init_data = pdata->ldo[id];
+	config.driver_data = ldo;
+
+	ldo->regulator = regulator_register(&ldo->desc, &config);
 	if (IS_ERR(ldo->regulator)) {
 		ret = PTR_ERR(ldo->regulator);
 		dev_err(wm831x->dev, "Failed to register LDO%d: %d\n",
@@ -764,7 +780,12 @@ static __devinit int wm831x_alive_ldo_probe(struct platform_device *pdev)
 {
 	struct wm831x *wm831x = dev_get_drvdata(pdev->dev.parent);
 	struct wm831x_pdata *pdata = wm831x->dev->platform_data;
+<<<<<<< HEAD
 	int id = pdev->id % ARRAY_SIZE(pdata->ldo);
+=======
+	struct regulator_config config = { };
+	int id;
+>>>>>>> c172708... regulator: core: Use a struct to pass in regulator runtime configuration
 	struct wm831x_ldo *ldo;
 	struct resource *res;
 	int ret;
@@ -798,8 +819,11 @@ static __devinit int wm831x_alive_ldo_probe(struct platform_device *pdev)
 	ldo->desc.ops = &wm831x_alive_ldo_ops;
 	ldo->desc.owner = THIS_MODULE;
 
-	ldo->regulator = regulator_register(&ldo->desc, &pdev->dev,
-					     pdata->ldo[id], ldo, NULL);
+	config.dev = pdev->dev.parent;
+	config.init_data = pdata->ldo[id];
+	config.driver_data = ldo;
+
+	ldo->regulator = regulator_register(&ldo->desc, &config);
 	if (IS_ERR(ldo->regulator)) {
 		ret = PTR_ERR(ldo->regulator);
 		dev_err(wm831x->dev, "Failed to register LDO%d: %d\n",
