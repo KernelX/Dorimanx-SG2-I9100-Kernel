@@ -23,6 +23,7 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/i2c.h>
+#include <linux/bug.h>
 #include <linux/err.h>
 #include <linux/gpio.h>
 #include <linux/slab.h>
