@@ -91,6 +91,9 @@ of_get_fixed_voltage_config(struct device *dev)
 	if (of_find_property(np, "enable-active-high", NULL))
 		config->enable_high = true;
 
+	if (of_find_property(np, "gpio-open-drain", NULL))
+		config->gpio_is_open_drain = true;
+
 	return config;
 }
 
