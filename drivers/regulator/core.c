@@ -2475,7 +2475,7 @@ static int _regulator_do_set_voltage(struct regulator_dev *rdev,
 	}
 
 	/* Call set_voltage_time_sel if successfully obtained old_selector */
-	if (_regulator_is_enabled(rdev) && ret == 0 && old_selector >= 0 &&
+	if (ret == 0 && _regulator_is_enabled(rdev) && old_selector >= 0 &&
 	    rdev->desc->ops->set_voltage_time_sel) {
 
 		delay = rdev->desc->ops->set_voltage_time_sel(rdev,
