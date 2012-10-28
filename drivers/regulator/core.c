@@ -3415,7 +3415,7 @@ regulator_register(const struct regulator_desc *regulator_desc,
 		if (ret != 0) {
 			rdev_err(rdev, "Failed to request enable GPIO%d: %d\n",
 				 config->ena_gpio, ret);
-			goto clean;
+			goto wash;
 		}
 
 		if (config->ena_gpio_flags & GPIOF_OUT_INIT_HIGH)
@@ -3504,6 +3504,7 @@ scrub:
 		_regulator_put(rdev->supply);
 	regulator_ena_gpio_free(rdev);
 	kfree(rdev->constraints);
+wash:
 	device_unregister(&rdev->dev);
 	/* device core frees rdev */
 	rdev = ERR_PTR(ret);
