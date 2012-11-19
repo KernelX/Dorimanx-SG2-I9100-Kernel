@@ -224,6 +224,19 @@ static int tps62360_init_force_pwm(struct tps62360_chip *tps,
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static struct regulator_ops tps62360_dcdc_ops = {
+	.get_voltage_sel	= tps62360_dcdc_get_voltage_sel,
+	.set_voltage_sel	= tps62360_dcdc_set_voltage_sel,
+	.list_voltage		= regulator_list_voltage_linear,
+	.map_voltage		= regulator_map_voltage_linear,
+	.set_voltage_time_sel	= regulator_set_voltage_time_sel,
+	.set_mode		= tps62360_set_mode,
+	.get_mode		= tps62360_get_mode,
+};
+
+>>>>>>> a502357... regulator: remove use of __devinit
 static int tps62360_init_dcdc(struct tps62360_chip *tps,
 		struct tps62360_regulator_platform_data *pdata)
 {
@@ -267,7 +280,58 @@ static const struct regmap_config tps62360_regmap_config = {
 	.val_bits = 8,
 };
 
+<<<<<<< HEAD
 static int __devinit tps62360_probe(struct i2c_client *client,
+=======
+static struct tps62360_regulator_platform_data *
+	of_get_tps62360_platform_data(struct device *dev)
+{
+	struct tps62360_regulator_platform_data *pdata;
+	struct device_node *np = dev->of_node;
+
+	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
+	if (!pdata) {
+		dev_err(dev, "Memory alloc failed for platform data\n");
+		return NULL;
+	}
+
+	pdata->reg_init_data = of_get_regulator_init_data(dev, dev->of_node);
+	if (!pdata->reg_init_data) {
+		dev_err(dev, "Not able to get OF regulator init data\n");
+		return NULL;
+	}
+
+	pdata->vsel0_gpio = of_get_named_gpio(np, "vsel0-gpio", 0);
+	pdata->vsel1_gpio = of_get_named_gpio(np, "vsel1-gpio", 0);
+
+	if (of_find_property(np, "ti,vsel0-state-high", NULL))
+		pdata->vsel0_def_state = 1;
+
+	if (of_find_property(np, "ti,vsel1-state-high", NULL))
+		pdata->vsel1_def_state = 1;
+
+	if (of_find_property(np, "ti,enable-pull-down", NULL))
+		pdata->en_internal_pulldn = true;
+
+	if (of_find_property(np, "ti,enable-vout-discharge", NULL))
+		pdata->en_discharge = true;
+
+	return pdata;
+}
+
+#if defined(CONFIG_OF)
+static const struct of_device_id tps62360_of_match[] = {
+	 { .compatible = "ti,tps62360", .data = (void *)TPS62360},
+	 { .compatible = "ti,tps62361", .data = (void *)TPS62361},
+	 { .compatible = "ti,tps62362", .data = (void *)TPS62362},
+	 { .compatible = "ti,tps62363", .data = (void *)TPS62363},
+	{},
+};
+MODULE_DEVICE_TABLE(of, tps62360_of_match);
+#endif
+
+static int tps62360_probe(struct i2c_client *client,
+>>>>>>> a502357... regulator: remove use of __devinit
 				     const struct i2c_device_id *id)
 {
 	struct regulator_config config = { };

@@ -322,7 +322,61 @@ static const struct regulator_desc regulators[] = {
 	TPS65217_REGULATOR("LDO4", TPS65217_LDO_4, tps65217_pmic_ops, 32),
 };
 
+<<<<<<< HEAD
 static int __devinit tps65217_regulator_probe(struct platform_device *pdev)
+=======
+#ifdef CONFIG_OF
+static struct of_regulator_match reg_matches[] = {
+	{ .name = "dcdc1", .driver_data = (void *)TPS65217_DCDC_1 },
+	{ .name = "dcdc2", .driver_data = (void *)TPS65217_DCDC_2 },
+	{ .name = "dcdc3", .driver_data = (void *)TPS65217_DCDC_3 },
+	{ .name = "ldo1", .driver_data = (void *)TPS65217_LDO_1 },
+	{ .name = "ldo2", .driver_data = (void *)TPS65217_LDO_2 },
+	{ .name = "ldo3", .driver_data = (void *)TPS65217_LDO_3 },
+	{ .name = "ldo4", .driver_data = (void *)TPS65217_LDO_4 },
+};
+
+static struct tps65217_board *tps65217_parse_dt(struct platform_device *pdev)
+{
+	struct tps65217 *tps = dev_get_drvdata(pdev->dev.parent);
+	struct device_node *node = tps->dev->of_node;
+	struct tps65217_board *pdata;
+	struct device_node *regs;
+	int i, count;
+
+	regs = of_find_node_by_name(node, "regulators");
+	if (!regs)
+		return NULL;
+
+	count = of_regulator_match(pdev->dev.parent, regs,
+				reg_matches, TPS65217_NUM_REGULATOR);
+	of_node_put(regs);
+	if ((count < 0) || (count > TPS65217_NUM_REGULATOR))
+		return NULL;
+
+	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+	if (!pdata)
+		return NULL;
+
+	for (i = 0; i < count; i++) {
+		if (!reg_matches[i].init_data || !reg_matches[i].of_node)
+			continue;
+
+		pdata->tps65217_init_data[i] = reg_matches[i].init_data;
+		pdata->of_node[i] = reg_matches[i].of_node;
+	}
+
+	return pdata;
+}
+#else
+static struct tps65217_board *tps65217_parse_dt(struct platform_device *pdev)
+{
+	return NULL;
+}
+#endif
+
+static int tps65217_regulator_probe(struct platform_device *pdev)
+>>>>>>> a502357... regulator: remove use of __devinit
 {
 	struct regulator_dev *rdev;
 	struct tps65217 *tps;

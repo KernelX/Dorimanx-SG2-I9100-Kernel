@@ -549,8 +549,12 @@ static struct regulator_ops tps6507x_pmic_ldo_ops = {
 	.list_voltage = tps6507x_pmic_ldo_list_voltage,
 };
 
+<<<<<<< HEAD
 static __devinit
 int tps6507x_pmic_probe(struct platform_device *pdev)
+=======
+static int tps6507x_pmic_probe(struct platform_device *pdev)
+>>>>>>> a502357... regulator: remove use of __devinit
 {
 	struct tps6507x_dev *tps6507x_dev = dev_get_drvdata(pdev->dev.parent);
 	struct tps_info *info = &tps6507x_pmic_regs[0];

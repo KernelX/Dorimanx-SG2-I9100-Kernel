@@ -871,7 +871,262 @@ static struct regulator_ops tps65911_ops = {
 	.list_voltage		= tps65911_list_voltage,
 };
 
+<<<<<<< HEAD
 static __devinit int tps65910_probe(struct platform_device *pdev)
+=======
+static int tps65910_set_ext_sleep_config(struct tps65910_reg *pmic,
+		int id, int ext_sleep_config)
+{
+	struct tps65910 *mfd = pmic->mfd;
+	u8 regoffs = (pmic->ext_sleep_control[id] >> 8) & 0xFF;
+	u8 bit_pos = (1 << pmic->ext_sleep_control[id] & 0xFF);
+	int ret;
+
+	/*
+	 * Regulator can not be control from multiple external input EN1, EN2
+	 * and EN3 together.
+	 */
+	if (ext_sleep_config & EXT_SLEEP_CONTROL) {
+		int en_count;
+		en_count = ((ext_sleep_config &
+				TPS65910_SLEEP_CONTROL_EXT_INPUT_EN1) != 0);
+		en_count += ((ext_sleep_config &
+				TPS65910_SLEEP_CONTROL_EXT_INPUT_EN2) != 0);
+		en_count += ((ext_sleep_config &
+				TPS65910_SLEEP_CONTROL_EXT_INPUT_EN3) != 0);
+		en_count += ((ext_sleep_config &
+				TPS65911_SLEEP_CONTROL_EXT_INPUT_SLEEP) != 0);
+		if (en_count > 1) {
+			dev_err(mfd->dev,
+				"External sleep control flag is not proper\n");
+			return -EINVAL;
+		}
+	}
+
+	pmic->board_ext_control[id] = ext_sleep_config;
+
+	/* External EN1 control */
+	if (ext_sleep_config & TPS65910_SLEEP_CONTROL_EXT_INPUT_EN1)
+		ret = tps65910_reg_set_bits(mfd,
+				TPS65910_EN1_LDO_ASS + regoffs, bit_pos);
+	else
+		ret = tps65910_reg_clear_bits(mfd,
+				TPS65910_EN1_LDO_ASS + regoffs, bit_pos);
+	if (ret < 0) {
+		dev_err(mfd->dev,
+			"Error in configuring external control EN1\n");
+		return ret;
+	}
+
+	/* External EN2 control */
+	if (ext_sleep_config & TPS65910_SLEEP_CONTROL_EXT_INPUT_EN2)
+		ret = tps65910_reg_set_bits(mfd,
+				TPS65910_EN2_LDO_ASS + regoffs, bit_pos);
+	else
+		ret = tps65910_reg_clear_bits(mfd,
+				TPS65910_EN2_LDO_ASS + regoffs, bit_pos);
+	if (ret < 0) {
+		dev_err(mfd->dev,
+			"Error in configuring external control EN2\n");
+		return ret;
+	}
+
+	/* External EN3 control for TPS65910 LDO only */
+	if ((tps65910_chip_id(mfd) == TPS65910) &&
+			(id >= TPS65910_REG_VDIG1)) {
+		if (ext_sleep_config & TPS65910_SLEEP_CONTROL_EXT_INPUT_EN3)
+			ret = tps65910_reg_set_bits(mfd,
+				TPS65910_EN3_LDO_ASS + regoffs, bit_pos);
+		else
+			ret = tps65910_reg_clear_bits(mfd,
+				TPS65910_EN3_LDO_ASS + regoffs, bit_pos);
+		if (ret < 0) {
+			dev_err(mfd->dev,
+				"Error in configuring external control EN3\n");
+			return ret;
+		}
+	}
+
+	/* Return if no external control is selected */
+	if (!(ext_sleep_config & EXT_SLEEP_CONTROL)) {
+		/* Clear all sleep controls */
+		ret = tps65910_reg_clear_bits(mfd,
+			TPS65910_SLEEP_KEEP_LDO_ON + regoffs, bit_pos);
+		if (!ret)
+			ret = tps65910_reg_clear_bits(mfd,
+				TPS65910_SLEEP_SET_LDO_OFF + regoffs, bit_pos);
+		if (ret < 0)
+			dev_err(mfd->dev,
+				"Error in configuring SLEEP register\n");
+		return ret;
+	}
+
+	/*
+	 * For regulator that has separate operational and sleep register make
+	 * sure that operational is used and clear sleep register to turn
+	 * regulator off when external control is inactive
+	 */
+	if ((id == TPS65910_REG_VDD1) ||
+		(id == TPS65910_REG_VDD2) ||
+			((id == TPS65911_REG_VDDCTRL) &&
+				(tps65910_chip_id(mfd) == TPS65911))) {
+		int op_reg_add = pmic->get_ctrl_reg(id) + 1;
+		int sr_reg_add = pmic->get_ctrl_reg(id) + 2;
+		int opvsel, srvsel;
+
+		ret = tps65910_reg_read(pmic->mfd, op_reg_add, &opvsel);
+		if (ret < 0)
+			return ret;
+		ret = tps65910_reg_read(pmic->mfd, sr_reg_add, &srvsel);
+		if (ret < 0)
+			return ret;
+
+		if (opvsel & VDD1_OP_CMD_MASK) {
+			u8 reg_val = srvsel & VDD1_OP_SEL_MASK;
+
+			ret = tps65910_reg_write(pmic->mfd, op_reg_add,
+						 reg_val);
+			if (ret < 0) {
+				dev_err(mfd->dev,
+					"Error in configuring op register\n");
+				return ret;
+			}
+		}
+		ret = tps65910_reg_write(pmic->mfd, sr_reg_add, 0);
+		if (ret < 0) {
+			dev_err(mfd->dev, "Error in settting sr register\n");
+			return ret;
+		}
+	}
+
+	ret = tps65910_reg_clear_bits(mfd,
+			TPS65910_SLEEP_KEEP_LDO_ON + regoffs, bit_pos);
+	if (!ret) {
+		if (ext_sleep_config & TPS65911_SLEEP_CONTROL_EXT_INPUT_SLEEP)
+			ret = tps65910_reg_set_bits(mfd,
+				TPS65910_SLEEP_SET_LDO_OFF + regoffs, bit_pos);
+		else
+			ret = tps65910_reg_clear_bits(mfd,
+				TPS65910_SLEEP_SET_LDO_OFF + regoffs, bit_pos);
+	}
+	if (ret < 0)
+		dev_err(mfd->dev,
+			"Error in configuring SLEEP register\n");
+
+	return ret;
+}
+
+#ifdef CONFIG_OF
+
+static struct of_regulator_match tps65910_matches[] = {
+	{ .name = "vrtc",	.driver_data = (void *) &tps65910_regs[0] },
+	{ .name = "vio",	.driver_data = (void *) &tps65910_regs[1] },
+	{ .name = "vdd1",	.driver_data = (void *) &tps65910_regs[2] },
+	{ .name = "vdd2",	.driver_data = (void *) &tps65910_regs[3] },
+	{ .name = "vdd3",	.driver_data = (void *) &tps65910_regs[4] },
+	{ .name = "vdig1",	.driver_data = (void *) &tps65910_regs[5] },
+	{ .name = "vdig2",	.driver_data = (void *) &tps65910_regs[6] },
+	{ .name = "vpll",	.driver_data = (void *) &tps65910_regs[7] },
+	{ .name = "vdac",	.driver_data = (void *) &tps65910_regs[8] },
+	{ .name = "vaux1",	.driver_data = (void *) &tps65910_regs[9] },
+	{ .name = "vaux2",	.driver_data = (void *) &tps65910_regs[10] },
+	{ .name = "vaux33",	.driver_data = (void *) &tps65910_regs[11] },
+	{ .name = "vmmc",	.driver_data = (void *) &tps65910_regs[12] },
+};
+
+static struct of_regulator_match tps65911_matches[] = {
+	{ .name = "vrtc",	.driver_data = (void *) &tps65911_regs[0] },
+	{ .name = "vio",	.driver_data = (void *) &tps65911_regs[1] },
+	{ .name = "vdd1",	.driver_data = (void *) &tps65911_regs[2] },
+	{ .name = "vdd2",	.driver_data = (void *) &tps65911_regs[3] },
+	{ .name = "vddctrl",	.driver_data = (void *) &tps65911_regs[4] },
+	{ .name = "ldo1",	.driver_data = (void *) &tps65911_regs[5] },
+	{ .name = "ldo2",	.driver_data = (void *) &tps65911_regs[6] },
+	{ .name = "ldo3",	.driver_data = (void *) &tps65911_regs[7] },
+	{ .name = "ldo4",	.driver_data = (void *) &tps65911_regs[8] },
+	{ .name = "ldo5",	.driver_data = (void *) &tps65911_regs[9] },
+	{ .name = "ldo6",	.driver_data = (void *) &tps65911_regs[10] },
+	{ .name = "ldo7",	.driver_data = (void *) &tps65911_regs[11] },
+	{ .name = "ldo8",	.driver_data = (void *) &tps65911_regs[12] },
+};
+
+static struct tps65910_board *tps65910_parse_dt_reg_data(
+		struct platform_device *pdev,
+		struct of_regulator_match **tps65910_reg_matches)
+{
+	struct tps65910_board *pmic_plat_data;
+	struct tps65910 *tps65910 = dev_get_drvdata(pdev->dev.parent);
+	struct device_node *np = pdev->dev.parent->of_node;
+	struct device_node *regulators;
+	struct of_regulator_match *matches;
+	unsigned int prop;
+	int idx = 0, ret, count;
+
+	pmic_plat_data = devm_kzalloc(&pdev->dev, sizeof(*pmic_plat_data),
+					GFP_KERNEL);
+
+	if (!pmic_plat_data) {
+		dev_err(&pdev->dev, "Failure to alloc pdata for regulators.\n");
+		return NULL;
+	}
+
+	regulators = of_find_node_by_name(np, "regulators");
+	if (!regulators) {
+		dev_err(&pdev->dev, "regulator node not found\n");
+		return NULL;
+	}
+
+	switch (tps65910_chip_id(tps65910)) {
+	case TPS65910:
+		count = ARRAY_SIZE(tps65910_matches);
+		matches = tps65910_matches;
+		break;
+	case TPS65911:
+		count = ARRAY_SIZE(tps65911_matches);
+		matches = tps65911_matches;
+		break;
+	default:
+		dev_err(&pdev->dev, "Invalid tps chip version\n");
+		return NULL;
+	}
+
+	ret = of_regulator_match(pdev->dev.parent, regulators, matches, count);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "Error parsing regulator init data: %d\n",
+			ret);
+		return NULL;
+	}
+
+	*tps65910_reg_matches = matches;
+
+	for (idx = 0; idx < count; idx++) {
+		if (!matches[idx].init_data || !matches[idx].of_node)
+			continue;
+
+		pmic_plat_data->tps65910_pmic_init_data[idx] =
+							matches[idx].init_data;
+
+		ret = of_property_read_u32(matches[idx].of_node,
+				"ti,regulator-ext-sleep-control", &prop);
+		if (!ret)
+			pmic_plat_data->regulator_ext_sleep_control[idx] = prop;
+
+	}
+
+	return pmic_plat_data;
+}
+#else
+static inline struct tps65910_board *tps65910_parse_dt_reg_data(
+			struct platform_device *pdev,
+			struct of_regulator_match **tps65910_reg_matches)
+{
+	*tps65910_reg_matches = NULL;
+	return NULL;
+}
+#endif
+
+static int tps65910_probe(struct platform_device *pdev)
+>>>>>>> a502357... regulator: remove use of __devinit
 {
 	struct tps65910 *tps65910 = dev_get_drvdata(pdev->dev.parent);
 	struct regulator_config config = { };

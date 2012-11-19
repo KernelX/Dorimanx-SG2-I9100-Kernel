@@ -1007,7 +1007,75 @@ static u8 twl_get_smps_mult(void)
 	return value;
 }
 
+<<<<<<< HEAD
 static int __devinit twlreg_probe(struct platform_device *pdev)
+=======
+#define TWL_OF_MATCH(comp, family, label) \
+	{ \
+		.compatible = comp, \
+		.data = &family##_INFO_##label, \
+	}
+
+#define TWL4030_OF_MATCH(comp, label) TWL_OF_MATCH(comp, TWL4030, label)
+#define TWL6030_OF_MATCH(comp, label) TWL_OF_MATCH(comp, TWL6030, label)
+#define TWL6025_OF_MATCH(comp, label) TWL_OF_MATCH(comp, TWL6025, label)
+#define TWLFIXED_OF_MATCH(comp, label) TWL_OF_MATCH(comp, TWLFIXED, label)
+#define TWLSMPS_OF_MATCH(comp, label) TWL_OF_MATCH(comp, TWLSMPS, label)
+
+static const struct of_device_id twl_of_match[] __devinitconst = {
+	TWL4030_OF_MATCH("ti,twl4030-vaux1", VAUX1),
+	TWL4030_OF_MATCH("ti,twl4030-vaux2", VAUX2_4030),
+	TWL4030_OF_MATCH("ti,twl5030-vaux2", VAUX2),
+	TWL4030_OF_MATCH("ti,twl4030-vaux3", VAUX3),
+	TWL4030_OF_MATCH("ti,twl4030-vaux4", VAUX4),
+	TWL4030_OF_MATCH("ti,twl4030-vmmc1", VMMC1),
+	TWL4030_OF_MATCH("ti,twl4030-vmmc2", VMMC2),
+	TWL4030_OF_MATCH("ti,twl4030-vpll1", VPLL1),
+	TWL4030_OF_MATCH("ti,twl4030-vpll2", VPLL2),
+	TWL4030_OF_MATCH("ti,twl4030-vsim", VSIM),
+	TWL4030_OF_MATCH("ti,twl4030-vdac", VDAC),
+	TWL4030_OF_MATCH("ti,twl4030-vintana2", VINTANA2),
+	TWL4030_OF_MATCH("ti,twl4030-vio", VIO),
+	TWL4030_OF_MATCH("ti,twl4030-vdd1", VDD1),
+	TWL4030_OF_MATCH("ti,twl4030-vdd2", VDD2),
+	TWL6030_OF_MATCH("ti,twl6030-vdd1", VDD1),
+	TWL6030_OF_MATCH("ti,twl6030-vdd2", VDD2),
+	TWL6030_OF_MATCH("ti,twl6030-vdd3", VDD3),
+	TWL6030_OF_MATCH("ti,twl6030-vaux1", VAUX1_6030),
+	TWL6030_OF_MATCH("ti,twl6030-vaux2", VAUX2_6030),
+	TWL6030_OF_MATCH("ti,twl6030-vaux3", VAUX3_6030),
+	TWL6030_OF_MATCH("ti,twl6030-vmmc", VMMC),
+	TWL6030_OF_MATCH("ti,twl6030-vpp", VPP),
+	TWL6030_OF_MATCH("ti,twl6030-vusim", VUSIM),
+	TWL6025_OF_MATCH("ti,twl6025-ldo2", LDO2),
+	TWL6025_OF_MATCH("ti,twl6025-ldo4", LDO4),
+	TWL6025_OF_MATCH("ti,twl6025-ldo3", LDO3),
+	TWL6025_OF_MATCH("ti,twl6025-ldo5", LDO5),
+	TWL6025_OF_MATCH("ti,twl6025-ldo1", LDO1),
+	TWL6025_OF_MATCH("ti,twl6025-ldo7", LDO7),
+	TWL6025_OF_MATCH("ti,twl6025-ldo6", LDO6),
+	TWL6025_OF_MATCH("ti,twl6025-ldoln", LDOLN),
+	TWL6025_OF_MATCH("ti,twl6025-ldousb", LDOUSB),
+	TWLFIXED_OF_MATCH("ti,twl4030-vintana1", VINTANA1),
+	TWLFIXED_OF_MATCH("ti,twl4030-vintdig", VINTDIG),
+	TWLFIXED_OF_MATCH("ti,twl4030-vusb1v5", VUSB1V5),
+	TWLFIXED_OF_MATCH("ti,twl4030-vusb1v8", VUSB1V8),
+	TWLFIXED_OF_MATCH("ti,twl4030-vusb3v1", VUSB3V1),
+	TWLFIXED_OF_MATCH("ti,twl6030-vana", VANA),
+	TWLFIXED_OF_MATCH("ti,twl6030-vcxio", VCXIO),
+	TWLFIXED_OF_MATCH("ti,twl6030-vdac", VDAC),
+	TWLFIXED_OF_MATCH("ti,twl6030-vusb", VUSB),
+	TWLFIXED_OF_MATCH("ti,twl6030-v1v8", V1V8),
+	TWLFIXED_OF_MATCH("ti,twl6030-v2v1", V2V1),
+	TWLSMPS_OF_MATCH("ti,twl6025-smps3", SMPS3),
+	TWLSMPS_OF_MATCH("ti,twl6025-smps4", SMPS4),
+	TWLSMPS_OF_MATCH("ti,twl6025-vio", VIO),
+	{},
+};
+MODULE_DEVICE_TABLE(of, twl_of_match);
+
+static int twlreg_probe(struct platform_device *pdev)
+>>>>>>> a502357... regulator: remove use of __devinit
 {
 	int				i;
 	struct twlreg_info		*info;

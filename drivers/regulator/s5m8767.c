@@ -690,6 +690,7 @@ static struct regulator_desc regulators[] = {
 	},
 };
 
+<<<<<<< HEAD
 static void s5m_set_buchg(struct work_struct *work)
 {
 	struct s5m8767_info *s5m8767;
@@ -705,6 +706,9 @@ static void s5m_set_buchg(struct work_struct *work)
 }
 
 static __devinit int s5m8767_pmic_probe(struct platform_device *pdev)
+=======
+static int s5m8767_pmic_probe(struct platform_device *pdev)
+>>>>>>> a502357... regulator: remove use of __devinit
 {
 	struct s5m87xx_dev *iodev = dev_get_drvdata(pdev->dev.parent);
 	struct s5m_platform_data *pdata = dev_get_platdata(iodev->dev);

@@ -61,7 +61,12 @@ static int tps65090_reg_is_enabled(struct regulator_dev *rdev)
 	return (((control >> ri->en_bit) & 1) == 1);
 }
 
+<<<<<<< HEAD
 static int tps65090_reg_enable(struct regulator_dev *rdev)
+=======
+static int tps65090_config_ext_control(
+	struct tps65090_regulator *ri, bool enable)
+>>>>>>> a502357... regulator: remove use of __devinit
 {
 	struct tps65090_regulator *ri = rdev_get_drvdata(rdev);
 	struct device *parent = to_tps65090_dev(rdev);
@@ -74,7 +79,13 @@ static int tps65090_reg_enable(struct regulator_dev *rdev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static int tps65090_reg_disable(struct regulator_dev *rdev)
+=======
+static int tps65090_regulator_disable_ext_control(
+		struct tps65090_regulator *ri,
+		struct tps65090_regulator_plat_data *tps_pdata)
+>>>>>>> a502357... regulator: remove use of __devinit
 {
 	struct tps65090_regulator *ri = rdev_get_drvdata(rdev);
 	struct device *parent = to_tps65090_dev(rdev);
@@ -88,6 +99,7 @@ static int tps65090_reg_disable(struct regulator_dev *rdev)
 	return ret;
 }
 
+<<<<<<< HEAD
 static struct regulator_ops tps65090_ops = {
 	.enable		= tps65090_reg_enable,
 	.disable	= tps65090_reg_disable,
@@ -107,6 +119,14 @@ static struct regulator_ops tps65090_ops = {
 		.owner = THIS_MODULE,			\
 	},						\
 }
+=======
+static void tps65090_configure_regulator_config(
+		struct tps65090_regulator_plat_data *tps_pdata,
+		struct regulator_config *config)
+{
+	if (gpio_is_valid(tps_pdata->gpio)) {
+		int gpio_flag = GPIOF_OUT_INIT_LOW;
+>>>>>>> a502357... regulator: remove use of __devinit
 
 static struct tps65090_regulator TPS65090_regulator[] = {
 	tps65090_REG(DCDC1),
@@ -134,7 +154,7 @@ static inline struct tps65090_regulator *find_regulator_info(int id)
 	return NULL;
 }
 
-static int __devinit tps65090_regulator_probe(struct platform_device *pdev)
+static int tps65090_regulator_probe(struct platform_device *pdev)
 {
 	struct tps65090_regulator *ri = NULL;
 	struct regulator_config config = { };

@@ -649,7 +649,7 @@ static int max77686_set_ramp_rate(struct i2c_client *i2c, int rate)
 	return ramp_delay;
 }
 
-static __devinit int max77686_pmic_probe(struct platform_device *pdev)
+static int max77686_pmic_probe(struct platform_device *pdev)
 {
 	struct max77686_dev *iodev = dev_get_drvdata(pdev->dev.parent);
 	struct max77686_platform_data *pdata = dev_get_platdata(iodev->dev);

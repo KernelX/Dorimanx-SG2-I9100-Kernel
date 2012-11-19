@@ -469,7 +469,90 @@ db8500_regulator_info[DB8500_NUM_REGULATORS] = {
 	},
 };
 
+<<<<<<< HEAD
 static int __devinit db8500_regulator_probe(struct platform_device *pdev)
+=======
+static int db8500_regulator_register(struct platform_device *pdev,
+					struct regulator_init_data *init_data,
+					int id,
+					struct device_node *np)
+{
+	struct dbx500_regulator_info *info;
+	struct regulator_config config = { };
+	int err;
+
+	/* assign per-regulator data */
+	info = &dbx500_regulator_info[id];
+	info->dev = &pdev->dev;
+
+	config.dev = &pdev->dev;
+	config.init_data = init_data;
+	config.driver_data = info;
+	config.of_node = np;
+
+	/* register with the regulator framework */
+	info->rdev = regulator_register(&info->desc, &config);
+	if (IS_ERR(info->rdev)) {
+		err = PTR_ERR(info->rdev);
+		dev_err(&pdev->dev, "failed to register %s: err %i\n",
+			info->desc.name, err);
+
+		/* if failing, unregister all earlier regulators */
+		while (--id >= 0) {
+			info = &dbx500_regulator_info[id];
+			regulator_unregister(info->rdev);
+		}
+		return err;
+	}
+
+	dev_dbg(rdev_get_dev(info->rdev),
+		"regulator-%s-probed\n", info->desc.name);
+
+	return 0;
+}
+
+static struct of_regulator_match db8500_regulator_matches[] = {
+	{ .name	= "db8500_vape",          .driver_data = (void *) DB8500_REGULATOR_VAPE, },
+	{ .name	= "db8500_varm",          .driver_data = (void *) DB8500_REGULATOR_VARM, },
+	{ .name	= "db8500_vmodem",        .driver_data = (void *) DB8500_REGULATOR_VMODEM, },
+	{ .name	= "db8500_vpll",          .driver_data = (void *) DB8500_REGULATOR_VPLL, },
+	{ .name	= "db8500_vsmps1",        .driver_data = (void *) DB8500_REGULATOR_VSMPS1, },
+	{ .name	= "db8500_vsmps2",        .driver_data = (void *) DB8500_REGULATOR_VSMPS2, },
+	{ .name	= "db8500_vsmps3",        .driver_data = (void *) DB8500_REGULATOR_VSMPS3, },
+	{ .name	= "db8500_vrf1",          .driver_data = (void *) DB8500_REGULATOR_VRF1, },
+	{ .name	= "db8500_sva_mmdsp",     .driver_data = (void *) DB8500_REGULATOR_SWITCH_SVAMMDSP, },
+	{ .name	= "db8500_sva_mmdsp_ret", .driver_data = (void *) DB8500_REGULATOR_SWITCH_SVAMMDSPRET, },
+	{ .name	= "db8500_sva_pipe",      .driver_data = (void *) DB8500_REGULATOR_SWITCH_SVAPIPE, },
+	{ .name	= "db8500_sia_mmdsp",     .driver_data = (void *) DB8500_REGULATOR_SWITCH_SIAMMDSP, },
+	{ .name	= "db8500_sia_mmdsp_ret", .driver_data = (void *) DB8500_REGULATOR_SWITCH_SIAMMDSPRET, },
+	{ .name	= "db8500_sia_pipe",      .driver_data = (void *) DB8500_REGULATOR_SWITCH_SIAPIPE, },
+	{ .name	= "db8500_sga",           .driver_data = (void *) DB8500_REGULATOR_SWITCH_SGA, },
+	{ .name	= "db8500_b2r2_mcde",     .driver_data = (void *) DB8500_REGULATOR_SWITCH_B2R2_MCDE, },
+	{ .name	= "db8500_esram12",       .driver_data = (void *) DB8500_REGULATOR_SWITCH_ESRAM12, },
+	{ .name	= "db8500_esram12_ret",   .driver_data = (void *) DB8500_REGULATOR_SWITCH_ESRAM12RET, },
+	{ .name	= "db8500_esram34",       .driver_data = (void *) DB8500_REGULATOR_SWITCH_ESRAM34, },
+	{ .name	= "db8500_esram34_ret",   .driver_data = (void *) DB8500_REGULATOR_SWITCH_ESRAM34RET, },
+};
+
+static int
+db8500_regulator_of_probe(struct platform_device *pdev,
+			struct device_node *np)
+{
+	int i, err;
+
+	for (i = 0; i < ARRAY_SIZE(dbx500_regulator_info); i++) {
+		err = db8500_regulator_register(
+			pdev, db8500_regulator_matches[i].init_data,
+			i, db8500_regulator_matches[i].of_node);
+		if (err)
+			return err;
+	}
+
+	return 0;
+}
+
+static int db8500_regulator_probe(struct platform_device *pdev)
+>>>>>>> a502357... regulator: remove use of __devinit
 {
 	struct regulator_init_data *db8500_init_data =
 					dev_get_platdata(&pdev->dev);
