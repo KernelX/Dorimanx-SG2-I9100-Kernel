@@ -457,7 +457,12 @@ static struct platform_driver pm8607_regulator_driver = {
 		.owner	= THIS_MODULE,
 	},
 	.probe		= pm8607_regulator_probe,
+<<<<<<< HEAD
 	.remove		= __devexit_p(pm8607_regulator_remove),
+=======
+	.remove		= pm8607_regulator_remove,
+	.id_table	= pm8607_regulator_driver_ids,
+>>>>>>> 5eb9f2b... regulator: remove use of __devexit_p
 };
 
 static int __init pm8607_regulator_init(void)
