@@ -198,7 +198,7 @@ static int __devexit anatop_regulator_remove(struct platform_device *pdev)
 	return 0;
 }
 
-static struct of_device_id __devinitdata of_anatop_regulator_match_tbl[] = {
+static struct of_device_id of_anatop_regulator_match_tbl[] = {
 	{ .compatible = "fsl,anatop-regulator", },
 	{ /* end */ }
 };

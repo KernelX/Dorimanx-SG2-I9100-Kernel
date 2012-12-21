@@ -333,6 +333,16 @@ static int __devexit gpio_regulator_remove(struct platform_device *pdev)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+#if defined(CONFIG_OF)
+static const struct of_device_id regulator_gpio_of_match[] = {
+	{ .compatible = "regulator-gpio", },
+	{},
+};
+#endif
+
+>>>>>>> 3d68dfe... Drivers: regulator: remove __dev* attributes.
 static struct platform_driver gpio_regulator_driver = {
 	.probe		= gpio_regulator_probe,
 	.remove		= gpio_regulator_remove,
