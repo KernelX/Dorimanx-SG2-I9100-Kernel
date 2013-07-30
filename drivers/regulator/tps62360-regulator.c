@@ -340,7 +340,30 @@ static int tps62360_probe(struct i2c_client *client,
 	int ret;
 	int i;
 
+<<<<<<< HEAD
 	pdata = client->dev.platform_data;
+=======
+	pdata = dev_get_platdata(&client->dev);
+
+	if (client->dev.of_node) {
+		const struct of_device_id *match;
+		match = of_match_device(of_match_ptr(tps62360_of_match),
+				&client->dev);
+		if (!match) {
+			dev_err(&client->dev, "Error: No device match found\n");
+			return -ENODEV;
+		}
+		chip_id = (int)match->data;
+		if (!pdata)
+			pdata = of_get_tps62360_platform_data(&client->dev);
+	} else if (id) {
+		chip_id = id->driver_data;
+	} else {
+		dev_err(&client->dev, "No device tree match or id table match found\n");
+		return -ENODEV;
+	}
+
+>>>>>>> dff91d0... regulator: use dev_get_platdata()
 	if (!pdata) {
 		dev_err(&client->dev, "%s() Err: Platform data not found\n",
 						__func__);

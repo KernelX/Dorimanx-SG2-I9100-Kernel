@@ -580,8 +580,13 @@ ab3100_regulator_desc[AB3100_NUM_REGULATORS] = {
 
 static int ab3100_regulators_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct ab3100_platform_data *plfdata = pdev->dev.platform_data;
 	struct regulator_config config = { };
+=======
+	struct ab3100_platform_data *plfdata = dev_get_platdata(&pdev->dev);
+	struct device_node *np = pdev->dev.of_node;
+>>>>>>> dff91d0... regulator: use dev_get_platdata()
 	int err = 0;
 	u8 data;
 	int i;

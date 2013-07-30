@@ -169,7 +169,12 @@ static struct regulator_ops gpio_regulator_current_ops = {
 
 static int gpio_regulator_probe(struct platform_device *pdev)
 {
+<<<<<<< HEAD
 	struct gpio_regulator_config *config = pdev->dev.platform_data;
+=======
+	struct gpio_regulator_config *config = dev_get_platdata(&pdev->dev);
+	struct device_node *np = pdev->dev.of_node;
+>>>>>>> dff91d0... regulator: use dev_get_platdata()
 	struct gpio_regulator_data *drvdata;
 	struct regulator_config cfg = { };
 	int ptr, ret, state;

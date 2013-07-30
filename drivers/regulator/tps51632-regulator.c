@@ -236,7 +236,23 @@ static int tps51632_probe(struct i2c_client *client,
 	int ret;
 	struct regulator_config config = { };
 
+<<<<<<< HEAD
 	pdata = client->dev.platform_data;
+=======
+	if (client->dev.of_node) {
+		const struct of_device_id *match;
+		match = of_match_device(of_match_ptr(tps51632_of_match),
+				&client->dev);
+		if (!match) {
+			dev_err(&client->dev, "Error: No device match found\n");
+			return -ENODEV;
+		}
+	}
+
+	pdata = dev_get_platdata(&client->dev);
+	if (!pdata && client->dev.of_node)
+		pdata = of_get_tps51632_platform_data(&client->dev);
+>>>>>>> dff91d0... regulator: use dev_get_platdata()
 	if (!pdata) {
 		dev_err(&client->dev, "No Platform data\n");
 		return -EINVAL;

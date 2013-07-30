@@ -1096,12 +1096,20 @@ static int twlreg_probe(struct platform_device *pdev)
 		drvdata = NULL;
 	} else {
 		id = pdev->id;
+<<<<<<< HEAD
 		initdata = pdev->dev.platform_data;
 		for (i = 0, info = NULL; i < ARRAY_SIZE(twl_of_match); i++) {
 			info = twl_of_match[i].data;
 			if (!info || info->desc.id != id)
 				continue;
 			break;
+=======
+		initdata = dev_get_platdata(&pdev->dev);
+		for (i = 0, template = NULL; i < ARRAY_SIZE(twl_of_match); i++) {
+			template = twl_of_match[i].data;
+			if (template && template->desc.id == id)
+				break;
+>>>>>>> dff91d0... regulator: use dev_get_platdata()
 		}
 		drvdata = initdata->driver_data;
 		if (!drvdata)

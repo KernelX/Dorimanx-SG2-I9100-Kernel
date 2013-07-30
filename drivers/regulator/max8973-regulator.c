@@ -368,8 +368,14 @@ static int max8973_probe(struct i2c_client *client,
 	struct max8973_chip *max;
 	int ret;
 
+<<<<<<< HEAD
 	pdata = client->dev.platform_data;
 	if (!pdata) {
+=======
+	pdata = dev_get_platdata(&client->dev);
+
+	if (!pdata && !client->dev.of_node) {
+>>>>>>> dff91d0... regulator: use dev_get_platdata()
 		dev_err(&client->dev, "No Platform data");
 		return -EIO;
 	}

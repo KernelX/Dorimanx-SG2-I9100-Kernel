@@ -297,7 +297,7 @@ static struct regulator_desc dcdc_desc = {
 static int max8649_regulator_probe(struct i2c_client *client,
 					     const struct i2c_device_id *id)
 {
-	struct max8649_platform_data *pdata = client->dev.platform_data;
+	struct max8649_platform_data *pdata = dev_get_platdata(&client->dev);
 	struct max8649_regulator_info *info = NULL;
 <<<<<<< HEAD
 =======

@@ -309,10 +309,14 @@ static struct regulator_ops wm831x_gp_ldo_ops = {
 static int wm831x_gp_ldo_probe(struct platform_device *pdev)
 {
 	struct wm831x *wm831x = dev_get_drvdata(pdev->dev.parent);
+<<<<<<< HEAD
 	struct wm831x_pdata *pdata = wm831x->dev->platform_data;
 <<<<<<< HEAD
 	int id = pdev->id % ARRAY_SIZE(pdata->ldo);
 =======
+=======
+	struct wm831x_pdata *pdata = dev_get_platdata(wm831x->dev);
+>>>>>>> dff91d0... regulator: use dev_get_platdata()
 	struct regulator_config config = { };
 	int id;
 >>>>>>> c172708... regulator: core: Use a struct to pass in regulator runtime configuration
@@ -581,10 +585,14 @@ static struct regulator_ops wm831x_aldo_ops = {
 static int wm831x_aldo_probe(struct platform_device *pdev)
 {
 	struct wm831x *wm831x = dev_get_drvdata(pdev->dev.parent);
+<<<<<<< HEAD
 	struct wm831x_pdata *pdata = wm831x->dev->platform_data;
 <<<<<<< HEAD
 	int id = pdev->id % ARRAY_SIZE(pdata->ldo);
 =======
+=======
+	struct wm831x_pdata *pdata = dev_get_platdata(wm831x->dev);
+>>>>>>> dff91d0... regulator: use dev_get_platdata()
 	struct regulator_config config = { };
 	int id;
 >>>>>>> c172708... regulator: core: Use a struct to pass in regulator runtime configuration
@@ -779,10 +787,14 @@ static struct regulator_ops wm831x_alive_ldo_ops = {
 static int wm831x_alive_ldo_probe(struct platform_device *pdev)
 {
 	struct wm831x *wm831x = dev_get_drvdata(pdev->dev.parent);
+<<<<<<< HEAD
 	struct wm831x_pdata *pdata = wm831x->dev->platform_data;
 <<<<<<< HEAD
 	int id = pdev->id % ARRAY_SIZE(pdata->ldo);
 =======
+=======
+	struct wm831x_pdata *pdata = dev_get_platdata(wm831x->dev);
+>>>>>>> dff91d0... regulator: use dev_get_platdata()
 	struct regulator_config config = { };
 	int id;
 >>>>>>> c172708... regulator: core: Use a struct to pass in regulator runtime configuration

@@ -253,7 +253,11 @@ static struct max8925_regulator_info * __devinit find_regulator_info(int id)
 static int max8925_regulator_probe(struct platform_device *pdev)
 {
 	struct max8925_chip *chip = dev_get_drvdata(pdev->dev.parent);
+<<<<<<< HEAD
 	struct max8925_platform_data *pdata = chip->dev->platform_data;
+=======
+	struct regulator_init_data *pdata = dev_get_platdata(&pdev->dev);
+>>>>>>> dff91d0... regulator: use dev_get_platdata()
 	struct regulator_config config = { };
 	struct max8925_regulator_info *ri;
 	struct regulator_dev *rdev;
