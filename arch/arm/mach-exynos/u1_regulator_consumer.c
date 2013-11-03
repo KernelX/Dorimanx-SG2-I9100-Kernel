@@ -63,15 +63,15 @@ static int u1_enable_regulator_for_usb_mipi(bool enable)
 		 */
 		pr_info("%s: enable LDOs\n", __func__);
 		if (!regulator_is_enabled(mipi11_regulator))
-			regulator_enable(mipi11_regulator);
+			ret = regulator_enable(mipi11_regulator);
 #ifndef CONFIG_MACH_U1_KOR_LGT
 		if (!regulator_is_enabled(hsic12_regulator))
-			regulator_enable(hsic12_regulator);
+			ret = regulator_enable(hsic12_regulator);
 #endif
 		if (!regulator_is_enabled(mipi18_regulator))
-			regulator_enable(mipi18_regulator);
+			ret = regulator_enable(mipi18_regulator);
 		if (!regulator_is_enabled(usb33_regulator))
-			regulator_enable(usb33_regulator);
+			ret = regulator_enable(usb33_regulator);
 	} else {
 		/* Power Off Sequence
 		 * USB 3.3V -> MIPI 18V -> HSIC 1.2V -> MIPI 1.1V

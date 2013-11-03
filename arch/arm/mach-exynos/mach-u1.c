@@ -798,6 +798,7 @@ static int m5mo_flash_power(int enable)
 {
 	struct regulator *flash = regulator_get(NULL, "led_flash");
 	struct regulator *movie = regulator_get(NULL, "led_movie");
+	int ret;
 
 	if (enable) {
 
@@ -810,9 +811,13 @@ static int m5mo_flash_power(int enable)
 		is_torch = false;
 #endif
 		regulator_set_current_limit(flash, 490000, 530000);
-		regulator_enable(flash);
+		ret = regulator_enable(flash);
+		if (ret)
+			flash = NULL;
 		regulator_set_current_limit(movie, 90000, 110000);
-		regulator_enable(movie);
+		ret = regulator_enable(movie);
+		if (ret)
+			movie = NULL;
 	} else {
 
 #if defined(CONFIG_MACH_Q1_BD)
@@ -2273,6 +2278,7 @@ static int lcd_cfg_gpio(void)
 static int lcd_power_on(struct lcd_device *ld, int enable)
 {
 	struct regulator *regulator;
+	int ret;
 
 	if (ld == NULL) {
 		printk(KERN_ERR "lcd device object is NULL.\n");
@@ -2284,8 +2290,10 @@ static int lcd_power_on(struct lcd_device *ld, int enable)
 		if (IS_ERR(regulator))
 			return 0;
 
-		regulator_enable(regulator);
+		ret = regulator_enable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator = NULL;
 	} else {
 		regulator = regulator_get(NULL, "vlcd_3.0v");
 
@@ -2611,6 +2619,7 @@ static int lcd_cfg_gpio(void)
 static int lcd_power_on(struct lcd_device *ld, int enable)
 {
 	struct regulator *regulator;
+	int ret;
 
 	if (ld == NULL) {
 		printk(KERN_ERR "lcd device object is NULL.\n");
@@ -2622,15 +2631,17 @@ static int lcd_power_on(struct lcd_device *ld, int enable)
 		if (IS_ERR(regulator))
 			return 0;
 
-		regulator_enable(regulator);
+		ret = regulator_enable(regulator);
 		regulator_put(regulator);
 
 		regulator = regulator_get(NULL, "vlcd_1.8v");
 		if (IS_ERR(regulator))
 			return 0;
 
-		regulator_enable(regulator);
+		ret = regulator_enable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator = NULL;
 	} else {
 		regulator = regulator_get(NULL, "vlcd_1.8v");
 
@@ -3361,6 +3372,7 @@ static int max8997_muic_set_safeout(int path)
 {
 	struct regulator *regulator;
 	int hub_usb_path = u1_get_usb_hub_path();
+	int ret;
 
 	if (hub_usb_path == USB_PATH_CP) {
 		regulator = regulator_get(NULL, "safeout1");
@@ -3374,14 +3386,16 @@ static int max8997_muic_set_safeout(int path)
 		if (IS_ERR(regulator))
 			return -ENODEV;
 		if (!regulator_is_enabled(regulator))
-			regulator_enable(regulator);
+			ret = regulator_enable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator == NULL;
 	} else if (hub_usb_path == USB_PATH_AP) {
 		regulator = regulator_get(NULL, "safeout1");
 		if (IS_ERR(regulator))
 			return -ENODEV;
 		if (!regulator_is_enabled(regulator))
-			regulator_enable(regulator);
+			ret = regulator_enable(regulator);
 		regulator_put(regulator);
 
 		regulator = regulator_get(NULL, "safeout2");
@@ -3390,20 +3404,24 @@ static int max8997_muic_set_safeout(int path)
 		if (regulator_is_enabled(regulator))
 			regulator_force_disable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator = NULL;
 	} else if (hub_usb_path == USB_PATH_ALL) {
 		regulator = regulator_get(NULL, "safeout1");
 		if (IS_ERR(regulator))
 			return -ENODEV;
 		if (!regulator_is_enabled(regulator))
-			regulator_enable(regulator);
+			ret = regulator_enable(regulator);
 		regulator_put(regulator);
 
 		regulator = regulator_get(NULL, "safeout2");
 		if (IS_ERR(regulator))
 			return -ENODEV;
 		if (!regulator_is_enabled(regulator))
-			regulator_enable(regulator);
+			ret = regulator_enable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator == NULL;
 	}
 
 	return 0;
@@ -3413,6 +3431,7 @@ static int max8997_muic_set_safeout(int path)
 {
 	static int safeout2_enabled;
 	struct regulator *regulator;
+	int ret;
 
 	pr_info("%s: path = %d\n", __func__, path);
 
@@ -3429,8 +3448,10 @@ static int max8997_muic_set_safeout(int path)
 			return -ENODEV;
 		if (!safeout2_enabled) {
 			pr_info("%s: enable safeout2\n", __func__);
-			regulator_enable(regulator);
+			ret = regulator_enable(regulator);
 			safeout2_enabled = 1;
+			if (ret)
+				regulator = NULL;
 		} else
 			pr_info("%s: safeout2 is already enabled\n",
 							__func__);
@@ -3441,12 +3462,16 @@ static int max8997_muic_set_safeout(int path)
 		if (IS_ERR(regulator))
 			return -ENODEV;
 		if (!regulator_is_enabled(regulator))
-			regulator_enable(regulator);
+			ret = regulator_enable(regulator);
 		regulator_put(regulator);
 
 		regulator = regulator_get(NULL, "safeout2");
 		if (IS_ERR(regulator))
 			return -ENODEV;
+
+		if (ret)
+			regulator = NULL;
+
 		if (safeout2_enabled) {
 			pr_info("%s: disable safeout2\n", __func__);
 			regulator_disable(regulator);
@@ -3463,6 +3488,7 @@ static int max8997_muic_set_safeout(int path)
 static int max8997_muic_set_safeout(int path)
 {
 	struct regulator *regulator;
+	int ret;
 
 	if (path == CP_USB_MODE) {
 		regulator = regulator_get(NULL, "safeout1");
@@ -3476,15 +3502,17 @@ static int max8997_muic_set_safeout(int path)
 		if (IS_ERR(regulator))
 			return -ENODEV;
 		if (!regulator_is_enabled(regulator))
-			regulator_enable(regulator);
+			ret = regulator_enable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator = NULL;
 	} else {
 		/* AP_USB_MODE || AUDIO_MODE */
 		regulator = regulator_get(NULL, "safeout1");
 		if (IS_ERR(regulator))
 			return -ENODEV;
 		if (!regulator_is_enabled(regulator))
-			regulator_enable(regulator);
+			ret = regulator_enable(regulator);
 		regulator_put(regulator);
 
 		regulator = regulator_get(NULL, "safeout2");
@@ -3493,6 +3521,8 @@ static int max8997_muic_set_safeout(int path)
 		if (regulator_is_enabled(regulator))
 			regulator_force_disable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator = NULL;
 	}
 
 	return 0;
@@ -3909,13 +3939,16 @@ void sec_set_main_mic_bias(bool on)
 int sec_set_ldo1_constraints(int disabled)
 {
 	struct regulator *regulator;
+	int ret;
 
 	if (!disabled) {
 		regulator = regulator_get(NULL, "vadc_3.3v");
 		if (IS_ERR(regulator))
 			return -1;
-		regulator_enable(regulator);
+		ret = regulator_enable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator = NULL;
 	} else {
 		regulator = regulator_get(NULL, "vadc_3.3v");
 		if (IS_ERR(regulator))
@@ -6136,12 +6169,15 @@ static int touchkey_suspend(void)
 static int touchkey_resume(void)
 {
 	struct regulator *regulator;
+	int ret;
 
 	regulator = regulator_get(NULL, TK_REGULATOR_NAME);
 	if (IS_ERR(regulator))
 		return 0;
-	regulator_enable(regulator);
+	ret = regulator_enable(regulator);
 	regulator_put(regulator);
+	if (ret)
+		regulator = NULL;
 
 	return 1;
 }
@@ -6170,6 +6206,7 @@ static int touchkey_power_on(bool on)
 
 static int touchkey_led_power_on(bool on)
 {
+	int ret;
 #if defined(LED_LDO_WITH_EN_PIN)
 	if (on)
 		gpio_direction_output(GPIO_3_TOUCH_EN, 1);
@@ -6182,8 +6219,10 @@ static int touchkey_led_power_on(bool on)
 		regulator = regulator_get(NULL, "touch_led");
 		if (IS_ERR(regulator))
 			return 0;
-		regulator_enable(regulator);
+		ret = regulator_enable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator = NULL;
 	} else {
 		regulator = regulator_get(NULL, "touch_led");
 		if (IS_ERR(regulator))
@@ -6525,13 +6564,16 @@ struct platform_device s3c_device_i2c11 = {
 static int cm3663_ldo(bool on)
 {
 	struct regulator *regulator;
+	int ret;
 
 	if (on) {
 		regulator = regulator_get(NULL, "vled");
 		if (IS_ERR(regulator))
 			return 0;
-		regulator_enable(regulator);
+		ret = regulator_enable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator = NULL;
 	} else {
 		regulator = regulator_get(NULL, "vled");
 		if (IS_ERR(regulator))
@@ -6594,13 +6636,16 @@ static struct pas2m110_platform_data pas2m110_pdata = {
 static int gp2a_power(bool on)
 {
 	struct regulator *regulator;
+	int ret;
 
 	if (on) {
 		regulator = regulator_get(NULL, "vled");
 		if (IS_ERR(regulator))
 			return 0;
-		regulator_enable(regulator);
+		ret = regulator_enable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator = NULL;
 	} else {
 		regulator = regulator_get(NULL, "vled");
 		if (IS_ERR(regulator))
@@ -6923,7 +6968,7 @@ static void lcd_cfg_gpio(void)
 static int lcd_power_on(void *ld, int enable)
 {
 	struct regulator *regulator;
-	int err;
+	int err, ret;
 
 	printk(KERN_INFO "%s : enable=%d\n", __func__, enable);
 
@@ -6952,16 +6997,20 @@ static int lcd_power_on(void *ld, int enable)
 			regulator = regulator_get(NULL, "vlcd_2.2v");
 			if (IS_ERR(regulator))
 				return 0;
-			regulator_enable(regulator);
+			ret = regulator_enable(regulator);
 			regulator_put(regulator);
+			if (ret)
+				regulator = NULL;
 		} else
 			gpio_set_value(GPIO_LCD_EN, GPIO_LEVEL_HIGH);
 #endif
 		regulator = regulator_get(NULL, "vlcd_3.0v");
 		if (IS_ERR(regulator))
 			return 0;
-		regulator_enable(regulator);
+		ret = regulator_enable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator = NULL;
 	} else {
 		regulator = regulator_get(NULL, "vlcd_3.0v");
 		if (IS_ERR(regulator))

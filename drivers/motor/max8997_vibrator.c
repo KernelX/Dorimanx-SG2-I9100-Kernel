@@ -105,6 +105,7 @@ static enum hrtimer_restart vibrator_timer_func(struct hrtimer *_timer)
 
 static void vibrator_work(struct work_struct *_work)
 {
+	int ret = 0;
 	struct vibrator_drvdata *data =
 		container_of(_work, struct vibrator_drvdata, work);
 
@@ -127,7 +128,7 @@ static void vibrator_work(struct work_struct *_work)
 		if (data->pdata->motor_en)
 			data->pdata->motor_en(true);
 		else
-			regulator_enable(data->regulator);
+			ret = regulator_enable(data->regulator);
 		i2c_max8997_hapticmotor(data, true);
 SAMSUNGROM
 {
@@ -182,6 +183,7 @@ static void vibrator_enable(struct timed_output_dev *_dev, int value)
 void vibtonz_en(bool en)
 {
 	struct vibrator_drvdata	*data = g_data;
+	int ret = 0;
 
 	if (en) {
 		if (data->running)
@@ -189,7 +191,7 @@ void vibtonz_en(bool en)
 		if (data->pdata->motor_en)
 			data->pdata->motor_en(true);
 		else
-			regulator_enable(data->regulator);
+			ret = regulator_enable(data->regulator);
 		i2c_max8997_hapticmotor(data, true);
 		pwm_enable(data->pwm);
 		data->running = true;

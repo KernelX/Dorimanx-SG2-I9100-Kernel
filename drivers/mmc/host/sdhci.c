@@ -1607,6 +1607,7 @@ static void sdhci_do_set_ios(struct sdhci_host *host, struct mmc_ios *ios)
 static void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 {
 	struct sdhci_host *host = mmc_priv(mmc);
+	int ret;
 
 	if ((!mmc_host_sd_present(mmc) ||
 			(mmc_host_sd_present(mmc) &&
@@ -1631,9 +1632,12 @@ static void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 			if (host->ops->set_power)
 				host->ops->set_power(1);
 #endif
-			regulator_enable(host->vmmc);
+			ret = regulator_enable(host->vmmc);
 			pr_info("%s : MMC Card ON %s\n", __func__,
 				host->hw_name);
+			if (ret) {
+				host->vmmc = NULL;
+			}
 		}
 	}
 
@@ -3102,8 +3106,11 @@ int sdhci_add_host(struct sdhci_host *host)
 				host->vmmc_name ? host->vmmc_name : "vmmc");
 		if (sc->ext_cd_gpio) {
 			if (gpio_get_value(sc->ext_cd_gpio) != (sc->ext_cd_gpio_invert)) {
-				regulator_enable(host->vmmc);
+				ret = regulator_enable(host->vmmc);
 				mdelay(100);
+				if (ret) {
+					host->vmmc = NULL;
+				}
 			}
 		}
 	}

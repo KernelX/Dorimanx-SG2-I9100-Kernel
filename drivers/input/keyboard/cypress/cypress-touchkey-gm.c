@@ -241,6 +241,7 @@ static int touchkey_update_status;
 int touchkey_led_ldo_on(bool on)
 {
 	struct regulator *regulator;
+	int ret;
 
 #if defined(CONFIG_MACH_S2PLUS)
 	if (on) {
@@ -253,8 +254,10 @@ int touchkey_led_ldo_on(bool on)
 		regulator = regulator_get(NULL, "touch_led");
 		if (IS_ERR(regulator))
 			return 0;
-		regulator_enable(regulator);
+		ret = regulator_enable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator = NULL;
 	} else {
 		regulator = regulator_get(NULL, "touch_led");
 		if (IS_ERR(regulator))
@@ -270,14 +273,17 @@ int touchkey_led_ldo_on(bool on)
 int touchkey_ldo_on(bool on)
 {
 	struct regulator *regulator;
+	int ret;
 
 #if defined(CONFIG_MACH_S2PLUS)
 	if (on) {
 		regulator = regulator_get(NULL, "3_touch_1.8v");
 		if (IS_ERR(regulator))
 			return 0;
-		regulator_enable(regulator);
+		ret = regulator_enable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator = NULL;
 	} else {
 		regulator = regulator_get(NULL, "3_touch_1.8v");
 		if (IS_ERR(regulator))
@@ -291,8 +297,10 @@ int touchkey_ldo_on(bool on)
 		regulator = regulator_get(NULL, "touch");
 		if (IS_ERR(regulator))
 			return 0;
-		regulator_enable(regulator);
+		ret = regulator_enable(regulator);
 		regulator_put(regulator);
+		if (ret)
+			regulator = NULL;
 	} else {
 		regulator = regulator_get(NULL, "touch");
 		if (IS_ERR(regulator))
